@@ -1,0 +1,33 @@
+[submodule "vim/bundle/vim-markdown"]
+	path = vim/bundle/vim-markdown
+	url = https://github.com/plasticboy/vim-markdown.git
+[submodule "vim/bundle/gist-vim"]
+	path = vim/bundle/gist-vim
+	url = https://github.com/mattn/gist-vim.git
+[submodule "vim/bundle/vimroom"]
+	path = vim/bundle/vimroom
+	url = https://github.com/mikewest/vimroom.git
+[submodule "vim/bundle/solarized"]
+	path = vim/bundle/solarized
+	url = https://github.com/altercation/vim-colors-solarized
+[submodule "vim/bundle/miniscm"]
+	path = vim/bundle/miniscm
+	url = https://github.com/vim-scripts/ScmFrontEnd-former-name--MinSCM.git
+[submodule "vim/bundle/snipmate"]
+	path = vim/bundle/snipmate
+	url = https://github.com/garbas/vim-snipmate.git
+[submodule "vim/bundle/minibufexpl"]
+	path = vim/bundle/minibufexpl
+	url = https://github.com/fholgado/minibufexpl.vim.git
+[submodule "vim/bundle/surround"]
+	path = vim/bundle/surround
+	url = https://github.com/tpope/vim-surround.git
+[submodule "vim/bundle/tlib"]
+	path = vim/bundle/tlib
+	url = https://github.com/tomtom/tlib_vim.git
+[submodule "vim/bundle/mw-utils"]
+	path = vim/bundle/mw-utils
+	url = https://github.com/MarcWeber/vim-addon-mw-utils.git
+[submodule "vim/bundle/snipmate-snippets"]
+	path = vim/bundle/snipmate-snippets
+	url = https://github.com/honza/snipmate-snippets.git
