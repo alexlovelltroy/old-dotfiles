@@ -1,2 +1,7 @@
 .mutt_accounts
 .sig
+.gnupg/pubring.gpg
+.gnupg/pubring.gpg~
+.gnupg/random_seed
+.gnupg/secring.gpg
+.gnupg/trustdb.gpg
