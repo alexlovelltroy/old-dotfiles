@@ -1,0 +1,14 @@
+[ui]
+username = Alex Lovell-Troy <alex@lovelltroy.org>
+verbose = True
+ssh = ssh -C
+merge = vimdiff
+
+[extensions]
+hgext.graphlog =
+convert =
+fetch =
+color =
+transplant =
+pager =
+rebase =
