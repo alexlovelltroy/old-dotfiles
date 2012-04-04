@@ -1,0 +1,24 @@
+
+  autodetach            on              # default: on
+  crlf                  off             # default: off
+  deflogin              on             # default: on
+  hardcopy_append       on              # default: off
+  startup_message       off             # default: on
+  activity              "%C -> %n%f %t activity! ^G"
+  bell_msg              "%C -> %n%f %t bell!~ ^G"
+  pow_detach_msg        "BYE"
+  nethack on
+  vbell on
+  defutf8 on
+  defscrollback 10000
+
+#http://mike.magin.org/2008/02/20/making-the-delete-key-work-in-screen-termcap-capabilities/
+termcapinfo xterm-color kD=\E[3~ #make delete work
+# Make mouse scrolling work
+termcapinfo xterm* ti@:te@
+shelltitle '] |bash'
+
+
+hardstatus off
+hardstatus alwayslastline
+hardstatus alwayslastline '%{= kG}[ %{G}%H %{g}][%= %{= kw}%?%-Lw%?%{r}(%{W}%n*%f%t%?(%u)%?%{r})%{w}%?%+Lw%?%?%= %{g}][%{= y} %72=Load: %l %{g} ][%{B} %m-%d %{W} %c:%s %{g}]'
