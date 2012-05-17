@@ -1,6 +1,5 @@
 export EDITOR="vim"
 UNAME=`uname`
-echo "Welcome $USER"
 if [ -f ~/.BASH_IDENTITY ]; then
     source ~/.BASH_IDENTITY
 else
