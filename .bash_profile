@@ -1,4 +1,17 @@
 export EDITOR="vim"
+UNAME=`uname`
+echo "Welcome $USER"
+if [ -f ~/.BASH_IDENTITY ]; then
+    source ~/.BASH_IDENTITY
+else
+echo "Your environment doesn't know who you are."
+echo "Copy and paste the following lines into a file called ~/.BASH_IDENTITY"
+echo "export GIT_AUTHOR_NAME="
+echo "export GIT_AUTHOR_EMAIL="
+echo "export GIT_COMMITTER_NAME=\"$GIT_AUTHOR_NAME\""
+echo "export GIT_COMMITTER_EMAIL=\"$GIT_AUTHOR_EMAIL\""
+fi
+
 
 #####  Screen can work with ssh-agent even when you reconnect
 #if [ -n "$SSH_AUTH_SOCK" ]; 
@@ -52,7 +65,11 @@ then
     fi
 fi
 
-alias ls='ls --color=auto'
+if [ $UNAME = "Darwin" ]; then
+    alias ls='ls -G'
+else
+    alias ls='ls --color=auto'
+fi
 
 
 # csv from mysql output = mysql -e | sed 's/\t/","/g;s/^/"/;s/$/"/;s/\n//g' > filename.csv
