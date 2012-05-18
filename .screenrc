@@ -1,4 +1,3 @@
-
   autodetach            on              # default: on
   crlf                  off             # default: off
   deflogin              on             # default: on
@@ -17,6 +16,11 @@ termcapinfo xterm-color kD=\E[3~ #make delete work
 # Make mouse scrolling work
 termcapinfo xterm* ti@:te@
 shelltitle '] |bash'
+
+screen -t logs 0
+screen -t model/view 1
+screen -t templates 2
+screen -t mysql 3
 
 
 hardstatus off
