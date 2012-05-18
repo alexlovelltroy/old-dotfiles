@@ -10,5 +10,6 @@ convert =
 fetch =
 color =
 transplant =
+hgext.mq =
 pager =
 rebase =

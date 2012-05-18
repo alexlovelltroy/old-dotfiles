@@ -1,9 +1,11 @@
-# Account Information in other file
+##account settings
+Account Information in other file
 source ~/.mutt_accounts
 #
 # Gmail for mutt
 set folder = "imaps://imap.gmail.com:993"
 set spoolfile = "imaps://imap.gmail.com:993/INBOX"
+#set spoolfile = "+INBOX"
 set postponed = "imaps://imap.gmail.com:993/[Gmail]/Drafts"
 set trash = "imaps://imap.gmail.com:993/[Gmail]/Trash"
 set record = "+[Gmail]/Sent Mail"
@@ -15,8 +17,10 @@ macro index gd "<change-folder>=[Gmail]/Drafts<enter>" "Go to drafts"
 
 set header_cache =~/.mutt/cache/headers
 set message_cachedir =~/.mutt/cache/bodies
+#set certificate_file =~/.mutt/certificates
 set pager_index_lines=16
 set pager_context=4
+#set spoolfile=~/.mailspool/alex
 set signature="~/.sig"
  
 set move = no  #Stop asking to "move read messages to mbox"!
@@ -139,6 +143,8 @@ set pgp_verify_command="gpg --no-verbose --batch --output - --verify %s %f"
 set pgp_decrypt_command="gpg --passphrase-fd 0 --no-verbose --batch --output - %f"
 set pgp_sign_command="gpg --no-verbose --batch --output - --passphrase-fd 0 --armor --detach-sign --textmode %?a?-u %a? %f"
 set pgp_clearsign_command="gpg --no-verbose --batch --output - --passphrase-fd 0 --armor --textmode --clearsign %?a?-u %a? %f"
+set pgp_encrypt_only_command="pgpewrap gpg --batch --quiet --no-verbose --output - --encrypt --textmode --armor --always-trust --encrypt-to 0x3FEB79D1 -- -r %r -- %f"
+set pgp_encrypt_sign_command="pgpewrap gpg --passphrase-fd 0 --batch --quiet --no-verbose --textmode --output - --encrypt --sign %?a?-u %a? --armor --always-trust --encrypt-to 0x3FEB79D1 -- -r %r -- %f"
 set pgp_import_command="gpg --no-verbose --import -v %f"
 set pgp_export_command="gpg --no-verbose --export --armor %r"
 set pgp_verify_key_command="gpg --no-verbose --batch --fingerprint --check-sigs %r"
@@ -151,3 +157,38 @@ set pgp_timeout=1800
 set pgp_good_sign="^gpg: Good signature from"
 #set pgp_use_gpg_agent=yes
 source ~/.mutt_aliases
+# set up the sidebar, default not visible
+set sidebar_width=12
+set sidebar_visible=yes
+
+# which mailboxes to list in the sidebar
+mailboxes =inbox =ml
+
+# color of folders with new mail
+color sidebar_new yellow default
+
+# ctrl-n, ctrl-p to select next, prev folder
+# ctrl-o to open selected folder
+bind index \CP sidebar-prev
+bind index \CN sidebar-next
+bind index \CO sidebar-open
+bind pager \CP sidebar-prev
+bind pager \CN sidebar-next
+bind pager \CO sidebar-open
+
+# I don't need these.  just for documentation purposes.  See below.
+# sidebar-scroll-up
+# sidebar-scroll-down
+
+# b toggles sidebar visibility
+#macro index b '<enter-command>toggle sidebar_visible<enter>'
+#macro pager b '<enter-command>toggle sidebar_visible<enter>'
+
+# Remap bounce-message function to "B"
+bind index B bounce-message
+
+#
+# Mario Holbe suggests:
+ macro index b '<enter-command>toggle sidebar_visible<enter><refresh>'
+ macro pager b '<enter-command>toggle sidebar_visible<enter><redraw-screen>'
+#
