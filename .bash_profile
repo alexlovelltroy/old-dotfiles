@@ -59,3 +59,11 @@ alias ls='ls --color=auto'
 function skip-first-n-lines() {
   perl -ne "print unless \$i++ < $1"
 }
+
+export PS1="\u@\h:\D{}:\w$ "
+if [ $TERM == 'xterm-color' ] 
+then
+ export PROMPT_COMMAND='echo -ne "\033]0;${USER}@${HOSTNAME}[`basename ${PWD}`]\007"'
+fi
+
+#'echo -ne "\033]0;iTools - mysql :: ${HOSTNAME}[`basename ${PWD}`]\007"'
