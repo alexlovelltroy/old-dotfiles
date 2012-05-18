@@ -7,10 +7,18 @@ echo "Your environment doesn't know who you are."
 echo "Copy and paste the following lines into a file called ~/.BASH_IDENTITY"
 echo "export GIT_AUTHOR_NAME="
 echo "export GIT_AUTHOR_EMAIL="
-echo "export GIT_COMMITTER_NAME=\"$GIT_AUTHOR_NAME\""
-echo "export GIT_COMMITTER_EMAIL=\"$GIT_AUTHOR_EMAIL\""
+echo "export GIT_COMMITTER_NAME=\"\$GIT_AUTHOR_NAME\""
+echo "export GIT_COMMITTER_EMAIL=\"\$GIT_AUTHOR_EMAIL\""
 fi
 
+#Set up the paths
+PATH="/sbin:/usr/sbin:/bin:/usr/bin"
+for dir in /usr/local/bin /usr/X11/bin /usr/local/git/bin /usr/local/MacGPG2/bin /Users/alt/Documents/ec2-api-tools-1.5.2.4/bin /usr/local/texlive/2011/bin/x86_64-darwin /usr/texbin; do 
+    if [ -d "$dir" ]; then
+        PATH=$PATH:"$dir";
+    fi
+    export PATH
+done
 
 #####  Screen can work with ssh-agent even when you reconnect
 #if [ -n "$SSH_AUTH_SOCK" ]; 
@@ -68,6 +76,10 @@ if [ $UNAME = "Darwin" ]; then
     alias ls='ls -G'
 else
     alias ls='ls --color=auto'
+fi
+
+if [ -f ~/.profile ]; then
+    source ~/.profile
 fi
 
 
