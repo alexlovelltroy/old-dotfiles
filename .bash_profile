@@ -114,6 +114,7 @@ function update-route53-dns () {
     # $2 is the address
     # $3 is the zone id
     # $4 is the full hostname
+    echo "/usr/local/bin/route53 change_record $3 $4. A $2 300"
     /usr/local/bin/route53 change_record $3 $4. A $2 300
 }
 
