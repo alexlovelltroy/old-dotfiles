@@ -58,14 +58,6 @@ then
                 # can ssh-add get a listing of keys from the agent?
                 ssh-add -l >/dev/null 2>&1
                 result=$?
-                if [ $result -ne 0 ]
-                then
-                    # ${validagent} is not valid.  make it so!
-
-                    # make sure tmpreaper doesn't remove my dir
-                    touch $validagentdir
-                    # make the symlink
-                    ln -sf $orig_sock $validagent
                 fi
             fi
         fi
@@ -125,3 +117,10 @@ function start-oneleap-staging () {
 function stop-oneleap-staging () {
     ec2-stop-instances $ONELEAP_STAGING_INSTANCE_ID
 }
+export PS1="\u@\h:\D{}:\w$ "
+if [ $TERM == 'xterm-color' ] 
+then
+ export PROMPT_COMMAND='echo -ne "\033]0;${USER}@${HOSTNAME}[`basename ${PWD}`]\007"'
+fi
+
+#'echo -ne "\033]0;iTools - mysql :: ${HOSTNAME}[`basename ${PWD}`]\007"'
