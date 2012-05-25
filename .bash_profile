@@ -11,9 +11,18 @@ echo "export GIT_COMMITTER_NAME=\"\$GIT_AUTHOR_NAME\""
 echo "export GIT_COMMITTER_EMAIL=\"\$GIT_AUTHOR_EMAIL\""
 fi
 
+if [ -d ~/bin/ec2-api-tools ]; then 
+    export EC2_HOME=~/bin/ec2-api-tools/
+else
+    echo "Your environment can't talk to EC2"
+    echo "you'll need boto. git clone https://github.com/boto/boto.git"
+    echo "you'll need the tools. curl -OL http://s3.amazonaws.com/ec2-downloads/ec2-api-tools.zip"
+fi
+
+
 #Set up the paths
 PATH="/sbin:/usr/sbin:/bin:/usr/bin"
-for dir in /usr/local/bin /usr/X11/bin /usr/local/git/bin /usr/local/MacGPG2/bin /Users/alt/Documents/ec2-api-tools-1.5.2.4/bin /usr/local/texlive/2011/bin/x86_64-darwin /usr/texbin; do
+for dir in /usr/local/bin /usr/X11/bin /usr/local/git/bin /usr/local/MacGPG2/bin ~/bin/ec2-api-tools/bin /usr/local/texlive/2011/bin/x86_64-darwin /usr/texbin; do
     if [ -d "$dir" ]; then
         PATH=$PATH:"$dir";
     fi
@@ -62,7 +71,6 @@ then
             fi
         fi
     fi
-fi
 
 if [ $UNAME = "Darwin" ]; then
     alias ls='ls -G'
