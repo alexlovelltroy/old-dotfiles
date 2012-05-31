@@ -28,7 +28,6 @@ for dir in /usr/local/bin /usr/X11/bin /usr/local/git/bin /usr/local/MacGPG2/bin
     fi
     export PATH
 done
-echo "agent is $SSH_AUTH_SOCK"
 # Test for the existence of an auth sock var
 if [ -z "$SSH_AUTH_SOCK" ]; then
 	export SSH_AUTH_SOCK=$(find /tmp/ssh-* -user `whoami` -name agent\* | tail -n 1)
