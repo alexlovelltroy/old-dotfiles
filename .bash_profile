@@ -58,7 +58,6 @@ then
                 # can ssh-add get a listing of keys from the agent?
                 ssh-add -l >/dev/null 2>&1
                 result=$?
-                fi
             fi
         fi
     fi
