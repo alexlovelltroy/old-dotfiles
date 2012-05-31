@@ -1,70 +1,51 @@
-export EDITOR="vim"
-UNAME=`uname`
-if [ -f ~/.BASH_IDENTITY ]; then
-    source ~/.BASH_IDENTITY
+export editor="vim"
+uname=`uname`
+if [ -f ~/.bash_identity ]; then
+    source ~/.bash_identity
 else
-echo "Your environment doesn't know who you are."
-echo "Copy and paste the following lines into a file called ~/.BASH_IDENTITY"
-echo "export GIT_AUTHOR_NAME="
-echo "export GIT_AUTHOR_EMAIL="
-echo "export GIT_COMMITTER_NAME=\"\$GIT_AUTHOR_NAME\""
-echo "export GIT_COMMITTER_EMAIL=\"\$GIT_AUTHOR_EMAIL\""
+echo "your environment doesn't know who you are."
+echo "copy and paste the following lines into a file called ~/.bash_identity"
+echo "export git_author_name="
+echo "export git_author_email="
+echo "export git_committer_name=\"\$git_author_name\""
+echo "export git_committer_email=\"\$git_author_email\""
 fi
 
-#Set up the paths
-PATH="/sbin:/usr/sbin:/bin:/usr/bin"
-for dir in /usr/local/bin /usr/X11/bin /usr/local/git/bin /usr/local/MacGPG2/bin /Users/alt/Documents/ec2-api-tools-1.5.2.4/bin /usr/local/texlive/2011/bin/x86_64-darwin /usr/texbin; do
+if [ -d ~/bin/ec2-api-tools ]; then 
+    export ec2_home=~/bin/ec2-api-tools/
+else
+    echo "your environment can't talk to ec2"
+    echo "you'll need boto. git clone https://github.com/boto/boto.git"
+    echo "you'll need the tools. curl -ol http://s3.amazonaws.com/ec2-downloads/ec2-api-tools.zip"
+fi
+
+
+#set up the paths
+path="/sbin:/usr/sbin:/bin:/usr/bin"
+for dir in /usr/local/bin /usr/x11/bin /usr/local/git/bin /usr/local/macgpg2/bin ~/bin/ec2-api-tools/bin /usr/local/texlive/2011/bin/x86_64-darwin /usr/texbin; do
     if [ -d "$dir" ]; then
-        PATH=$PATH:"$dir";
+        path=$path:"$dir";
     fi
-    export PATH
+    export path
 done
-
-#####  Screen can work with ssh-agent even when you reconnect
-#if [ -n "$SSH_AUTH_SOCK" ];
-  #then screen_ssh_agent="/tmp/${USER}-screen-ssh-agent.sock"
-  #if [ ${STY} ];
-    #then if [ -e ${screen_ssh_agent} ];
-      #then export SSH_AUTH_SOCK=${screen_ssh_agent}
-    #fi else ln -snf ${SSH_AUTH_SOCK} ${screen_ssh_agent}
-  #fi
-#fi
-###### Screen/ssh-agent stuff ends here
-validagent=/tmp/$USER-ssh-agent/valid-agent
-validagentdir=`dirname ${validagent}`
-# if it's not a directory or it doesn't exist, make it.
-if [ ! -d ${validagentdir} ]
-then
-    # just in case it's a file
-    rm -f ${validagentdir}
-    mkdir -p ${validagentdir}
-    chmod 700 ${validagentdir}
-fi
-# only proceed if it's owned by me
-if [ -O ${validagentdir} ]
-then
-    # and the ssh socket isn't already the symlink
-    if [ "x$validagent" != "x$SSH_AUTH_SOCK" ]
-    then
-        # and the socket actually exists and is a socket
-        if [ -S $SSH_AUTH_SOCK ]
-        then
-            # and it's not empty (i.e. no forwarded agent)
-            if [ ! -z $SSH_AUTH_SOCK ]
-            then
-                # if the current symlink works, don't touch it.
-                orig_sock=$SSH_AUTH_SOCK
-                SSH_AUTH_SOCK=${validagent}
-                # can ssh-add get a listing of keys from the agent?
-                ssh-add -l >/dev/null 2>&1
-                result=$?
-            fi
-        fi
+# test for the existence of an auth sock var
+if [ -z "$ssh_auth_sock" ]; then
+	export ssh_auth_sock=$(find /tmp/ssh-* -user `whoami` -name agent\* | tail -n 1)
+else
+    # try to use it
+    # 0 exit code means groovy
+    # 1 exit code means something failed
+    # 2 exit code means couldn't connect to agent
+    ssh-add -l >/dev/null 2>&1
+    result=$?
+    if [ $result -ne 0 ]; then
+        # something didn't work.  create a new one.
+	eval `ssh-agent`
     fi
 fi
 
-if [ $UNAME = "Darwin" ]; then
-    alias ls='ls -G'
+if [ $uname = "darwin" ]; then
+    alias ls='ls -g'
 else
     alias ls='ls --color=auto'
 fi
@@ -80,46 +61,46 @@ function skip-first-n-lines() {
 }
 
 function start-ec2-instance() {
-    #Be sure that the ec2 api tools are in your path.  Possibly in ~/Documents/ec2-api-tools-X.X.X.X/bin
-    EC2_DESCRIBE="ec2-describe-instances"
-    EC2_START="ec2-start-instances"
-    INSTANCE_ID=$1
+    #be sure that the ec2 api tools are in your path.  possibly in ~/documents/ec2-api-tools-x.x.x.x/bin
+    ec2_describe="ec2-describe-instances"
+    ec2_start="ec2-start-instances"
+    instance_id=$1
 
 
-    #Already running?
-    INSTANCE_STATUS=`$EC2_DESCRIBE $INSTANCE_ID | grep INSTANCE`
-    INSTANCE_STATE=`echo $INSTANCE_STATUS |awk '{print $6}'`
-    INSTANCE_ADDRESS=`echo $INSTANCE_STATUS |awk '{print $16}'`
-    if [[ "$INSTANCE_STATE" == "running" ]]; 
+    #already running?
+    instance_status=`$ec2_describe $instance_id | grep instance`
+    instance_state=`echo $instance_status |awk '{print $6}'`
+    instance_address=`echo $instance_status |awk '{print $16}'`
+    if [[ "$instance_state" == "running" ]]; 
     then 
-        echo "$INSTANCE_ADDRESS";
+        echo "$instance_address";
     else 
-        $EC2_START $INSTANCE_ID
+        $ec2_start $instance_id
         sleep 60
-        INSTANCE_ADDRESS=`$EC2_DESCRIBE $INSTANCE_ID |grep INSTANCE |awk '{print $16}' `
+        instance_address=`$ec2_describe $instance_id |grep instance |awk '{print $16}' `
     fi
-    echo "$INSTANCE_ADDRESS";
+    echo "$instance_address";
 }
 
 function update-route53-dns () {
     # $2 is the address
     # $3 is the zone id
     # $4 is the full hostname
-    echo "/usr/local/bin/route53 change_record $3 $4. A $2 300"
-    /usr/local/bin/route53 change_record $3 $4. A $2 300
+    echo "/usr/local/bin/route53 change_record $3 $4. a $2 300"
+    /usr/local/bin/route53 change_record $3 $4. a $2 300
 }
 
 function start-oneleap-staging () {
-    update-route53-dns `start-ec2-instance $ONELEAP_STAGING_INSTANCE_ID` $ONELEAP_ROUTE53_ZONE_ID staging.oneleap.to
+    update-route53-dns `start-ec2-instance $oneleap_staging_instance_id` $oneleap_route53_zone_id staging.oneleap.to
 }
 
 function stop-oneleap-staging () {
-    ec2-stop-instances $ONELEAP_STAGING_INSTANCE_ID
+    ec2-stop-instances $oneleap_staging_instance_id
 }
-export PS1="\u@\h:\D{}:\w$ "
-if [ $TERM == 'xterm-color' ] 
+export ps1="\u@\h:\d{}:\w$ "
+if [ $term == 'xterm-color' ] 
 then
- export PROMPT_COMMAND='echo -ne "\033]0;${USER}@${HOSTNAME}[`basename ${PWD}`]\007"'
+ export prompt_command='echo -ne "\033]0;${user}@${hostname}[`basename ${pwd}`]\007"'
 fi
 
-#'echo -ne "\033]0;iTools - mysql :: ${HOSTNAME}[`basename ${PWD}`]\007"'
+#'echo -ne "\033]0;itools - mysql :: ${hostname}[`basename ${pwd}`]\007"'
