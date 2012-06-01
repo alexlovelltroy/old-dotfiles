@@ -61,7 +61,7 @@ if [ -f /etc/bash_completion ] && ! shopt -oq posix; then
 fi
 
 export EDITOR="vim"
-UNAME=`uname`
+export UNAME=`uname`
 if [ -f ~/.BASH_IDENTITY ]; then
     source ~/.BASH_IDENTITY
 else
@@ -74,7 +74,7 @@ echo "export GIT_COMMITTER_EMAIL=\"\$GIT_AUTHOR_EMAIL\""
 fi
 
 function find-ssh-agent () {
-    if [ $UNAME = "Darwin" ]; then
+    if [ "$UNAME" = "Darwin" ]; then
         export SSH_AUTH_SOCK=$(find /tmp/launch-* -user `whoami` -name Listeners | tail -n 1)
     else
         export SSH_AUTH_SOCK=$(find /tmp/ssh-* -user `whoami` -name agent\* | tail -n 1)
