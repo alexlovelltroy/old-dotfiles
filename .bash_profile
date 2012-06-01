@@ -11,6 +11,25 @@ echo "export GIT_COMMITTER_NAME=\"\$GIT_AUTHOR_NAME\""
 echo "export GIT_COMMITTER_EMAIL=\"\$GIT_AUTHOR_EMAIL\""
 fi
 
+function find-ssh-agent () {
+    if [ $UNAME = "Darwin" ]; then
+        export SSH_AUTH_SOCK=$(find /tmp/launch-* -user `whoami` -name Listeners | tail -n 1)
+    else
+        export SSH_AUTH_SOCK=$(find /tmp/ssh-* -user `whoami` -name agent\* | tail -n 1)
+    fi
+    # Try to use it
+    # 0 exit code means groovy
+    # 1 exit code means no identities (yet)
+    # 2 exit code means couldn't connect to agent
+    ssh-add -l >/dev/null 2>&1
+    result=$?
+    if [ $result -eq 2 ]; then
+        # Something didn't work.  Create a new one.
+        eval `ssh-agent`
+    fi
+}
+
+
 if [ -d ~/bin/ec2-api-tools ]; then 
     export EC2_HOME=~/bin/ec2-api-tools/
 else
@@ -28,21 +47,6 @@ for dir in /usr/local/bin /usr/X11/bin /usr/local/git/bin /usr/local/MacGPG2/bin
     fi
     export PATH
 done
-# Test for the existence of an auth sock var
-if [ -z "$SSH_AUTH_SOCK" ]; then
-	export SSH_AUTH_SOCK=$(find /tmp/ssh-* -user `whoami` -name agent\* | tail -n 1)
-else
-    # Try to use it
-    # 0 exit code means groovy
-    # 1 exit code means something failed
-    # 2 exit code means couldn't connect to agent
-    ssh-add -l >/dev/null 2>&1
-    result=$?
-    if [ $result -ne 0 ]; then
-        # Something didn't work.  Create a new one.
-	eval `ssh-agent`
-    fi
-fi
 
 if [ $UNAME = "Darwin" ]; then
     alias ls='ls -G'
@@ -72,6 +76,7 @@ watch()
         fi
 }
 
+find-ssh-agent
 
 
 # csv from mysql output = mysql -e | sed 's/\t/","/g;s/^/"/;s/$/"/;s/\n//g' > filename.csv
