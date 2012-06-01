@@ -54,6 +54,25 @@ if [ -f ~/.profile ]; then
     source ~/.profile
 fi
 
+rot13()
+{
+	if [ $# = 0 ] ; then
+		tr "[a-m][n-z][A-M][N-Z]" "[n-z][a-m][N-Z][A-M]"
+	else
+		tr "[a-m][n-z][A-M][N-Z]" "[n-z][a-m][N-Z][A-M]" < $1
+	fi
+}
+
+watch()
+{
+        if [ $# -ne 1 ] ; then
+                tail -f nohup.out
+        else
+                tail -f $1
+        fi
+}
+
+
 
 # csv from mysql output = mysql -e | sed 's/\t/","/g;s/^/"/;s/$/"/;s/\n//g' > filename.csv
 function skip-first-n-lines() {
