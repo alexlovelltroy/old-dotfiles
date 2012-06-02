@@ -1,51 +1,117 @@
-export editor="vim"
-uname=`uname`
-if [ -f ~/.bash_identity ]; then
-    source ~/.bash_identity
-else
-echo "your environment doesn't know who you are."
-echo "copy and paste the following lines into a file called ~/.bash_identity"
-echo "export git_author_name="
-echo "export git_author_email="
-echo "export git_committer_name=\"\$git_author_name\""
-echo "export git_committer_email=\"\$git_author_email\""
-fi
+# If not running interactively, don't do anything
+[ -z "$PS1" ] && return
 
-if [ -d ~/bin/ec2-api-tools ]; then 
-    export ec2_home=~/bin/ec2-api-tools/
-else
-    echo "your environment can't talk to ec2"
-    echo "you'll need boto. git clone https://github.com/boto/boto.git"
-    echo "you'll need the tools. curl -ol http://s3.amazonaws.com/ec2-downloads/ec2-api-tools.zip"
-fi
+# don't put duplicate lines in the history. See bash(1) for more options
+# ... or force ignoredups and ignorespace
+HISTCONTROL=ignoredups:ignorespace
 
+# append to the history file, don't overwrite it
+shopt -s histappend
 
-#set up the paths
-path="/sbin:/usr/sbin:/bin:/usr/bin"
-for dir in /usr/local/bin /usr/x11/bin /usr/local/git/bin /usr/local/macgpg2/bin ~/bin/ec2-api-tools/bin /usr/local/texlive/2011/bin/x86_64-darwin /usr/texbin; do
-    if [ -d "$dir" ]; then
-        path=$path:"$dir";
+# for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
+HISTSIZE=1000
+HISTFILESIZE=2000
+
+# check the window size after each command and, if necessary,
+# update the values of LINES and COLUMNS.
+shopt -s checkwinsize
+
+# make less more friendly for non-text input files, see lesspipe(1)
+[ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
+
+# set a fancy prompt (non-color, unless we know we "want" color)
+case "$TERM" in
+    xterm-color) color_prompt=yes;;
+esac
+
+# uncomment for a colored prompt, if the terminal has the capability; turned
+# off by default to not distract the user: the focus in a terminal window
+# should be on the output of commands, not on the prompt
+#force_color_prompt=yes
+
+if [ -n "$force_color_prompt" ]; then
+    if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
+	# We have color support; assume it's compliant with Ecma-48
+	# (ISO/IEC-6429). (Lack of such support is extremely rare, and such
+	# a case would tend to support setf rather than setaf.)
+	color_prompt=yes
+    else
+	color_prompt=
     fi
-    export path
-done
-# test for the existence of an auth sock var
-if [ -z "$ssh_auth_sock" ]; then
-	export ssh_auth_sock=$(find /tmp/ssh-* -user `whoami` -name agent\* | tail -n 1)
+fi
+
+if [ "$color_prompt" = yes ]; then
+    PS1='\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
 else
-    # try to use it
+    PS1='\u@\h:\w\$ '
+fi
+unset color_prompt force_color_prompt
+
+# If this is an xterm set the title to user@host:dir
+case "$TERM" in
+xterm*|rxvt*)
+    PS1="\[\e]0;\u@\h: \w\a\]$PS1"
+    ;;
+*)
+    ;;
+esac
+
+if [ -f /etc/bash_completion ] && ! shopt -oq posix; then
+    . /etc/bash_completion
+fi
+
+export EDITOR="vim"
+export UNAME=`uname`
+if [ -f ~/.BASH_IDENTITY ]; then
+    source ~/.BASH_IDENTITY
+else
+echo "Your environment doesn't know who you are."
+echo "Copy and paste the following lines into a file called ~/.BASH_IDENTITY"
+echo "export GIT_AUTHOR_NAME="
+echo "export GIT_AUTHOR_EMAIL="
+echo "export GIT_COMMITTER_NAME=\"\$GIT_AUTHOR_NAME\""
+echo "export GIT_COMMITTER_EMAIL=\"\$GIT_AUTHOR_EMAIL\""
+fi
+
+function find-ssh-agent () {
+    if [ "$UNAME" = "Darwin" ]; then
+        export SSH_AUTH_SOCK=$(find /tmp/launch-* -user `whoami` -name Listeners | tail -n 1)
+    else
+        export SSH_AUTH_SOCK=$(find /tmp/ssh-* -user `whoami` -name agent\* | tail -n 1)
+    fi
+    # Try to use it
     # 0 exit code means groovy
-    # 1 exit code means something failed
+    # 1 exit code means no identities (yet)
     # 2 exit code means couldn't connect to agent
     ssh-add -l >/dev/null 2>&1
     result=$?
-    if [ $result -ne 0 ]; then
-        # something didn't work.  create a new one.
-	eval `ssh-agent`
+    if [ $result -eq 2 ]; then
+        # Something didn't work.  Create a new one.
+        eval `ssh-agent`
     fi
+}
+
+
+if [ -d ~/bin/ec2-api-tools ]; then 
+    export EC2_HOME=~/bin/ec2-api-tools/
+else
+    echo "Your environment can't talk to EC2"
+    echo "you'll need boto. git clone https://github.com/boto/boto.git"
+    echo "you'll need the tools. curl -OL http://s3.amazonaws.com/ec2-downloads/ec2-api-tools.zip"
 fi
 
-if [ $uname = "darwin" ]; then
-    alias ls='ls -g'
+
+#Set up the paths
+PATH="/sbin:/usr/sbin:/bin:/usr/bin"
+for dir in /usr/local/bin /usr/X11/bin /usr/local/git/bin /usr/local/MacGPG2/bin ~/bin/ec2-api-tools/bin /usr/local/texlive/2011/bin/x86_64-darwin /usr/texbin; do
+    if [ -d "$dir" ]; then
+        PATH=$PATH:"$dir";
+    fi
+    export PATH
+done
+
+if [ $UNAME = "Darwin" ]; then
+    alias ls='ls -G'
 else
     alias ls='ls --color=auto'
 fi
@@ -54,6 +120,26 @@ if [ -f ~/.profile ]; then
     source ~/.profile
 fi
 
+rot13()
+{
+	if [ $# = 0 ] ; then
+		tr "[a-m][n-z][A-M][N-Z]" "[n-z][a-m][N-Z][A-M]"
+	else
+		tr "[a-m][n-z][A-M][N-Z]" "[n-z][a-m][N-Z][A-M]" < $1
+	fi
+}
+
+watch()
+{
+        if [ $# -ne 1 ] ; then
+                tail -f nohup.out
+        else
+                tail -f $1
+        fi
+}
+
+find-ssh-agent
+
 
 # csv from mysql output = mysql -e | sed 's/\t/","/g;s/^/"/;s/$/"/;s/\n//g' > filename.csv
 function skip-first-n-lines() {
@@ -61,46 +147,46 @@ function skip-first-n-lines() {
 }
 
 function start-ec2-instance() {
-    #be sure that the ec2 api tools are in your path.  possibly in ~/documents/ec2-api-tools-x.x.x.x/bin
-    ec2_describe="ec2-describe-instances"
-    ec2_start="ec2-start-instances"
-    instance_id=$1
+    #Be sure that the ec2 api tools are in your path.  Possibly in ~/Documents/ec2-api-tools-X.X.X.X/bin
+    EC2_DESCRIBE="ec2-describe-instances"
+    EC2_START="ec2-start-instances"
+    INSTANCE_ID=$1
 
 
-    #already running?
-    instance_status=`$ec2_describe $instance_id | grep instance`
-    instance_state=`echo $instance_status |awk '{print $6}'`
-    instance_address=`echo $instance_status |awk '{print $16}'`
-    if [[ "$instance_state" == "running" ]]; 
+    #Already running?
+    INSTANCE_STATUS=`$EC2_DESCRIBE $INSTANCE_ID | grep INSTANCE`
+    INSTANCE_STATE=`echo $INSTANCE_STATUS |awk '{print $6}'`
+    INSTANCE_ADDRESS=`echo $INSTANCE_STATUS |awk '{print $16}'`
+    if [[ "$INSTANCE_STATE" == "running" ]]; 
     then 
-        echo "$instance_address";
+        echo "$INSTANCE_ADDRESS";
     else 
-        $ec2_start $instance_id
+        $EC2_START $INSTANCE_ID
         sleep 60
-        instance_address=`$ec2_describe $instance_id |grep instance |awk '{print $16}' `
+        INSTANCE_ADDRESS=`$EC2_DESCRIBE $INSTANCE_ID |grep INSTANCE |awk '{print $16}' `
     fi
-    echo "$instance_address";
+    echo "$INSTANCE_ADDRESS";
 }
 
 function update-route53-dns () {
     # $2 is the address
     # $3 is the zone id
     # $4 is the full hostname
-    echo "/usr/local/bin/route53 change_record $3 $4. a $2 300"
-    /usr/local/bin/route53 change_record $3 $4. a $2 300
+    echo "/usr/local/bin/route53 change_record $3 $4. A $2 300"
+    /usr/local/bin/route53 change_record $3 $4. A $2 300
 }
 
 function start-oneleap-staging () {
-    update-route53-dns `start-ec2-instance $oneleap_staging_instance_id` $oneleap_route53_zone_id staging.oneleap.to
+    update-route53-dns `start-ec2-instance $ONELEAP_STAGING_INSTANCE_ID` $ONELEAP_ROUTE53_ZONE_ID staging.oneleap.to
 }
 
 function stop-oneleap-staging () {
-    ec2-stop-instances $oneleap_staging_instance_id
+    ec2-stop-instances $ONELEAP_STAGING_INSTANCE_ID
 }
-export ps1="\u@\h:\d{}:\w$ "
-if [ $term == 'xterm-color' ] 
+export PS1="\u@\h:\D{}:\w$ "
+if [ $TERM == 'xterm-color' ] 
 then
- export prompt_command='echo -ne "\033]0;${user}@${hostname}[`basename ${pwd}`]\007"'
+ export PROMPT_COMMAND='echo -ne "\033]0;${USER}@${HOSTNAME}[`basename ${PWD}`]\007"'
 fi
 
-#'echo -ne "\033]0;itools - mysql :: ${hostname}[`basename ${pwd}`]\007"'
+#'echo -ne "\033]0;iTools - mysql :: ${HOSTNAME}[`basename ${PWD}`]\007"'
