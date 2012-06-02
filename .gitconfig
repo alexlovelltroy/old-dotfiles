@@ -4,3 +4,5 @@
     tool = vimdiff
 [color]
     ui = true
+[mergetool "fugitive"]
+	cmd = vim -f -c \"Gdiff\" \"$MERGED\"
