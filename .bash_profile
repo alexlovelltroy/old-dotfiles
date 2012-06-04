@@ -73,12 +73,7 @@ echo "export GIT_COMMITTER_NAME=\"\$GIT_AUTHOR_NAME\""
 echo "export GIT_COMMITTER_EMAIL=\"\$GIT_AUTHOR_EMAIL\""
 fi
 
-function find-ssh-agent () {
-    if [ "$UNAME" = "Darwin" ]; then
-        export SSH_AUTH_SOCK=$(find /tmp/launch-* -user `whoami` -name Listeners 2>/dev/null| tail -n 1)
-    else
-        export SSH_AUTH_SOCK=$(find /tmp/ssh-* -user `whoami` -name agent\* | tail -n 1)
-    fi
+function ssh-agent-works () {
     # Try to use it
     # 0 exit code means groovy
     # 1 exit code means no identities (yet)
@@ -86,8 +81,37 @@ function find-ssh-agent () {
     ssh-add -l >/dev/null 2>&1
     result=$?
     if [ $result -eq 2 ]; then
-        # Something didn't work.  Create a new one.
-        eval `ssh-agent`
+        return 1
+    else
+        return 0
+    fi
+}
+
+function ssh-agent-fails () {
+    # Try to use it
+    # 0 exit code means groovy
+    # 1 exit code means no identities (yet)
+    # 2 exit code means couldn't connect to agent
+    ssh-add -l >/dev/null 2>&1
+    result=$?
+    if [ $result -eq 2 ]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+function find-ssh-agent () {
+    # We might already have one.  Let's try it!
+    if `ssh-agent-fails`; then
+        if [ "$UNAME" = "Darwin" ]; then
+            export SSH_AUTH_SOCK=$(find /tmp/launch-* -user `whoami` -name Listeners 2>/dev/null| tail -n 1)
+        else
+            export SSH_AUTH_SOCK=$(find /tmp/ssh-* -user `whoami` -name agent\* | tail -n 1)
+        fi
+        if `ssh-agent-fails`; then
+            eval `ssh-agent`
+        fi
     fi
 }
 
