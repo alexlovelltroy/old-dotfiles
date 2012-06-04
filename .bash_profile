@@ -75,7 +75,7 @@ fi
 
 function find-ssh-agent () {
     if [ "$UNAME" = "Darwin" ]; then
-        export SSH_AUTH_SOCK=$(find /tmp/launch-* -user `whoami` -name Listeners | tail -n 1)
+        export SSH_AUTH_SOCK=$(find /tmp/launch-* -user `whoami` -name Listeners 2>/dev/null| tail -n 1)
     else
         export SSH_AUTH_SOCK=$(find /tmp/ssh-* -user `whoami` -name agent\* | tail -n 1)
     fi
@@ -110,7 +110,7 @@ for dir in /usr/local/bin /usr/X11/bin /usr/local/git/bin /usr/local/MacGPG2/bin
     export PATH
 done
 
-if [ $UNAME = "Darwin" ]; then
+if [ "$UNAME" = "Darwin" ]; then
     alias ls='ls -G'
 else
     alias ls='ls --color=auto'
