@@ -1,0 +1,20 @@
+# Account Settings -----------------------------------
+
+# Default inbox.
+set spoolfile = "+alex.lovelltroy.gmail.com/INBOX"
+
+# Alternate email addresses.
+alternates alex@lovelltroy.org alex@stewarttroy.net alex\.?lovelltroy@oneleap.to
+
+# Mailboxes to show in the sidebar.
+mailboxes +alex.lovelltroy.gmail.com/INBOX \
+          +alex.lovelltroy.gmail.com/archive \
+          +alex.lovelltroy.gmail.com/sent \
+          +alex.lovelltroy.gmail.com/drafts \
+
+# Other special folders.
+set mbox      = "+alex.lovelltroy.gmail.com/archive"
+set postponed = "+alex.lovelltroy.gmail.com/drafts"
+
+set imap_keepalive = 600
+source ~/.muttrc_common
