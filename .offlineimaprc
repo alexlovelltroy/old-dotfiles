@@ -1,0 +1,74 @@
+[general]
+ui = blinkenlights
+accounts = AlexLovellTroy, OneLeapAlex
+pythonfile=~/bin/offlineimap.py
+fsync = False
+
+[Account AlexLovellTroy]
+localrepository = AlexLovellTroy-Local
+remoterepository = AlexLovellTroy-Remote
+status_backend = sqlite
+postsynchook = notmuch new
+
+[Account OneLeapAlex]
+localrepository = OneLeapAlex-Local
+remoterepository = OneLeapAlex-Remote
+status_backend = sqlite
+postsynchook = notmuch new
+
+[Repository AlexLovellTroy-Local]
+type = Maildir
+localfolders = ~/.mail/alex.lovelltroy.gmail.com
+nametrans = lambda folder: {'drafts':  '[Gmail]/Drafts',
+                            'sent':    '[Gmail]/Sent Mail',
+                            'flagged': '[Gmail]/Starred',
+                            'trash':   '[Gmail]/Trash',
+                            'archive': '[Gmail]/All Mail',
+                            }.get(folder, folder)
+
+[Repository AlexLovellTroy-Remote]
+maxconnections = 1
+type = Gmail
+remoteuser = alex.lovelltroy@gmail.com
+remotepasseval = get_keychain_pass(account="alex.lovelltroy@gmail.com", server="imap.gmail.com")
+realdelete = no
+nametrans = lambda folder: {'[Gmail]/Drafts':    'drafts',
+                            '[Gmail]/Sent Mail': 'sent',
+                            '[Gmail]/Starred':   'flagged',
+                            '[Gmail]/Trash':     'trash',
+                            '[Gmail]/All Mail':  'archive',
+                            }.get(folder, folder)
+folderfilter = lambda folder: folder not in ['[Gmail]/Trash',
+                                             '[Gmail]/Important',
+                                             '[Gmail]/Spam',
+                                             '134thconnections',
+                                             'Bulk',
+                                             'Livelines',
+                                             'Forums',
+                                             ]
+[Repository OneLeapAlex-Local]
+type = Maildir
+localfolders = ~/.mail/alex.lovelltroy.oneleap.to
+nametrans = lambda folder: {'drafts':  '[Gmail]/Drafts',
+                            'sent':    '[Gmail]/Sent Mail',
+                            'flagged': '[Gmail]/Starred',
+                            'trash':   '[Gmail]/Trash',
+                            'archive': '[Gmail]/All Mail',
+                            }.get(folder, folder)
+
+[Repository OneLeapAlex-Remote]
+maxconnections = 1
+type = Gmail
+remoteuser = alex.lovelltroy@oneleap.to
+remotepasseval = get_keychain_pass(account="alex.lovelltroy@oneleap.to", server="imap.gmail.com")
+realdelete = no
+nametrans = lambda folder: {'[Gmail]/Drafts':    'drafts',
+                            '[Gmail]/Sent Mail': 'sent',
+                            '[Gmail]/Starred':   'flagged',
+                            '[Gmail]/Trash':     'trash',
+                            '[Gmail]/All Mail':  'archive',
+                            }.get(folder, folder)
+folderfilter = lambda folder: folder not in ['[Gmail]/Trash',
+                                             '[Gmail]/Important',
+                                             '[Gmail]/Spam',
+                                             ]
