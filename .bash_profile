@@ -171,6 +171,7 @@ function skip-first-n-lines() {
 }
 
 function start-ec2-instance() {
+    export JAVA_HOME=$(/usr/libexec/java_home)
     #Be sure that the ec2 api tools are in your path.  Possibly in ~/Documents/ec2-api-tools-X.X.X.X/bin
     EC2_DESCRIBE="ec2-describe-instances"
     EC2_START="ec2-start-instances"
@@ -193,6 +194,7 @@ function start-ec2-instance() {
 }
 
 function update-route53-dns () {
+    export JAVA_HOME=$(/usr/libexec/java_home)
     # $2 is the address
     # $3 is the zone id
     # $4 is the full hostname
@@ -201,10 +203,12 @@ function update-route53-dns () {
 }
 
 function start-oneleap-staging () {
+    export JAVA_HOME=$(/usr/libexec/java_home)
     update-route53-dns `start-ec2-instance $ONELEAP_STAGING_INSTANCE_ID` $ONELEAP_ROUTE53_ZONE_ID staging.oneleap.to
 }
 
 function stop-oneleap-staging () {
+    export JAVA_HOME=$(/usr/libexec/java_home)
     ec2-stop-instances $ONELEAP_STAGING_INSTANCE_ID
 }
 export PS1="\u@\h:\D{}:\w$ "
